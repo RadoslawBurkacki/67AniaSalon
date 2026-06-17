@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\radek\\\\Desktop\\\\dev\\\\67AniaSalon\" -Recurse -File | Where-Object { $_.FullName -notmatch 'node_modules' } | Select-Object -ExpandProperty FullName | ForEach-Object { $_.Replace\\(\"c:\\\\Users\\\\radek\\\\Desktop\\\\dev\\\\67AniaSalon\\\\\", \"\"\\) })",
+      "Skill(run)",
+      "Skill(run:*)",
+      "Bash(npm --version)",
+      "PowerShell(winget install OpenJS.NodeJS.LTS --accept-package-agreements --accept-source-agreements 2>&1)",
+      "Bash(curl -s http://localhost:3000 -o /dev/null -w \"/ → %{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:3000/booking -o /dev/null -w \"/booking → %{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:3000/admin/login -o /dev/null -w \"/admin/login → %{http_code}\\\\n\")"
+    ]
+  }
+}

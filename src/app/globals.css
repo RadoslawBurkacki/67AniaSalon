@@ -1,0 +1,206 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   THEME VARIABLES  — dark is default, light is opt-in
+   Values are space-separated RGB channels (no rgb() wrapper)
+   so Tailwind's opacity modifier (bg-gold/50) works correctly.
+   ============================================================ */
+@layer base {
+  :root,
+  [data-theme="dark"] {
+    --color-bg:             10 10 10;       /* #0A0A0A */
+    --color-surface:        20 20 20;       /* #141414 */
+    --color-elevated:       30 30 30;       /* #1E1E1E */
+    --color-gold:           201 169 110;    /* #C9A96E */
+    --color-gold-light:     212 185 120;    /* #D4B978 */
+    --color-gold-dark:      139 115 85;     /* #8B7355 */
+    --color-gold-muted:     107 89 64;      /* #6B5940 */
+    --color-text:           245 240 234;    /* #F5F0EA */
+    --color-text-muted:     160 144 128;    /* #A09080 */
+    --color-text-faint:     106 95 82;      /* #6A5F52 */
+    --color-border:         42 35 32;       /* #2A2320 */
+    --color-border-elevated: 58 48 40;      /* #3A3028 */
+  }
+
+  [data-theme="light"] {
+    --color-bg:             250 247 242;    /* #FAF7F2 */
+    --color-surface:        242 235 224;    /* #F2EBE0 */
+    --color-elevated:       232 223 208;    /* #E8DFD0 */
+    --color-gold:           184 125 42;     /* #B87D2A — darker for light bg contrast */
+    --color-gold-light:     201 148 26;     /* #C9941A */
+    --color-gold-dark:      139 101 34;     /* #8B6522 */
+    --color-gold-muted:     212 173 122;    /* #D4AD7A */
+    --color-text:           30 21 16;       /* #1E1510 */
+    --color-text-muted:     107 88 74;      /* #6B584A */
+    --color-text-faint:     158 136 114;    /* #9E8872 */
+    --color-border:         224 212 196;    /* #E0D4C4 */
+    --color-border-elevated: 205 190 168;   /* #CDBEA8 */
+  }
+
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: rgb(var(--color-bg));
+    color: rgb(var(--color-text));
+    font-family: 'Inter', system-ui, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  ::selection {
+    background-color: rgb(var(--color-gold) / 0.2);
+    color: rgb(var(--color-gold-light));
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+
+  ::-webkit-scrollbar-track {
+    background: rgb(var(--color-surface));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--color-border-elevated));
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--color-gold));
+  }
+}
+
+@layer components {
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Uses CSS variables so gold adapts to theme */
+  .gold-text {
+    background-image: linear-gradient(
+      135deg,
+      rgb(var(--color-gold-dark)),
+      rgb(var(--color-gold)),
+      rgb(var(--color-gold-light))
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .gold-border {
+    @apply border border-gold/30 hover:border-gold/70 transition-colors duration-300;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-8 py-4 bg-gold text-background font-medium tracking-wider uppercase text-sm
+           hover:bg-gold-light transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,0,0,0.15)]
+           active:scale-[0.98];
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center gap-2 px-8 py-4 border border-gold text-gold font-medium tracking-wider uppercase text-sm
+           hover:bg-gold hover:text-background transition-all duration-300
+           active:scale-[0.98];
+  }
+
+  .card-surface {
+    @apply bg-surface border border-border rounded-none;
+  }
+
+  .heading-xl {
+    @apply font-serif text-5xl sm:text-6xl lg:text-7xl font-light leading-[1.1] tracking-tight;
+  }
+
+  .heading-lg {
+    @apply font-serif text-4xl sm:text-5xl font-light leading-[1.15] tracking-tight;
+  }
+
+  .heading-md {
+    @apply font-serif text-3xl sm:text-4xl font-light leading-[1.2] tracking-tight;
+  }
+
+  .section-label {
+    @apply text-gold text-xs font-medium tracking-[0.3em] uppercase;
+  }
+
+  /* Theme-aware gradient backgrounds */
+  .hero-bg {
+    background: radial-gradient(ellipse at top, rgb(var(--color-elevated)) 0%, rgb(var(--color-bg)) 60%);
+  }
+
+  .cta-bg {
+    background: radial-gradient(ellipse at center, rgb(var(--color-elevated)) 0%, rgb(var(--color-bg)) 70%);
+  }
+
+  /* Google Maps iframe: inverted in dark, natural in light */
+  .map-iframe {
+    filter: none;
+    transition: filter 0.3s ease;
+  }
+
+  [data-theme="dark"] .map-iframe {
+    filter: invert(90%) hue-rotate(180deg);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+/* ============================================================
+   REACT DAY PICKER — theme-aware
+   ============================================================ */
+.rdp {
+  --rdp-cell-size: 40px;
+  --rdp-accent-color: rgb(var(--color-gold));
+  --rdp-background-color: rgb(var(--color-elevated));
+  --rdp-accent-color-dark: rgb(var(--color-gold));
+  --rdp-background-color-dark: rgb(var(--color-elevated));
+  margin: 0;
+}
+
+.rdp-day_selected,
+.rdp-day_selected:focus-visible,
+.rdp-day_selected:hover {
+  background-color: rgb(var(--color-gold)) !important;
+  color: rgb(var(--color-bg)) !important;
+}
+
+.rdp-day:hover:not(.rdp-day_selected) {
+  background-color: rgb(var(--color-border)) !important;
+  color: rgb(var(--color-text)) !important;
+}
+
+.rdp-day_disabled { opacity: 0.25; }
+
+.rdp-caption_label {
+  color: rgb(var(--color-text));
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+}
+
+.rdp-head_cell {
+  color: rgb(var(--color-gold));
+  font-size: 0.75rem;
+}
+
+.rdp-nav_button {
+  color: rgb(var(--color-gold)) !important;
+}

@@ -1,0 +1,51 @@
+
+> ania-salon@0.1.0 dev
+> next dev
+
+  ▲ Next.js 14.2.28
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+ ✓ Ready in 2.1s
+ ○ Compiling / ...
+ ✓ Compiled / in 5.6s (1325 modules)
+ GET / 200 in 5866ms
+ ✓ Compiled in 459ms (666 modules)
+ GET / 200 in 59ms
+ GET / 200 in 40ms
+ ○ Compiling /booking ...
+ ✓ Compiled /booking in 3.1s (3020 modules)
+ GET /booking 200 in 3360ms
+ ○ Compiling /admin/login ...
+ ✓ Compiled /admin/login in 806ms (3110 modules)
+ GET /admin/login 200 in 957ms
+ GET / 200 in 151ms
+ ✓ Compiled in 999ms (1577 modules)
+ ✓ Compiled in 911ms (2223 modules)
+ ✓ Compiled in 265ms (1564 modules)
+ ✓ Compiled in 765ms (2226 modules)
+ ✓ Compiled in 966ms (2226 modules)
+ ✓ Compiled in 373ms (2226 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET / 200 in 207ms
+ ✓ Compiled in 639ms (2230 modules)
+ ✓ Compiled in 412ms (2230 modules)
+ ✓ Compiled in 655ms (2230 modules)
+ ✓ Compiled in 418ms (2230 modules)
+ ✓ Compiled in 433ms (2230 modules)
+ GET / 200 in 195ms
+ ○ Compiling /booking ...
+ ✓ Compiled /booking in 939ms (1511 modules)
+ GET /booking 200 in 1061ms
+ ✓ Compiled /admin/login in 234ms (1564 modules)
+ GET /admin/login 200 in 392ms
+ GET / 200 in 156ms
+ ○ Compiling /api/available-slots ...
+ ✓ Compiled /api/available-slots in 946ms (1582 modules)
+ GET /api/available-slots?date=2026-06-18 200 in 8199ms
