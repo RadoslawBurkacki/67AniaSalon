@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
 import { NAIL_SERVICES, MASSAGE_SERVICES, TIME_SLOTS } from '@/lib/types'
+import { sendBookingReceived, sendAdminNewBooking } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 
@@ -70,6 +71,12 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (error) throw error
+
+    // Send emails in the background — don't block the response
+    Promise.all([
+      sendBookingReceived(data),
+      sendAdminNewBooking(data),
+    ]).catch(err => console.error('Email send error:', err))
 
     return NextResponse.json({ booking: data }, { status: 201 })
   } catch (e) {

@@ -39,6 +39,13 @@ export default function AdminPage() {
     setUpdatingId(id)
     await supabase.from('bookings').update({ status }).eq('id', id)
     setBookings(prev => prev.map(b => b.id === id ? { ...b, status: status as Booking['status'] } : b))
+    if (status === 'confirmed') {
+      fetch('/api/send-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId: id }),
+      }).catch(err => console.error('Confirmation email failed:', err))
+    }
     setUpdatingId(null)
   }
 
