@@ -72,11 +72,12 @@ export async function POST(req: NextRequest) {
 
     if (error) throw error
 
-    // Send emails in the background — don't block the response
-    Promise.all([
-      sendBookingReceived(data),
-      sendAdminNewBooking(data),
-    ]).catch(err => console.error('Email send error:', err))
+    // Send emails — await so errors appear in Vercel logs
+    try {
+      await Promise.all([sendBookingReceived(data), sendAdminNewBooking(data)])
+    } catch (emailErr) {
+      console.error('Email send failed:', emailErr)
+    }
 
     return NextResponse.json({ booking: data }, { status: 201 })
   } catch (e) {
