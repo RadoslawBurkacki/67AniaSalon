@@ -3,8 +3,8 @@ import { formatDate, formatTime } from './types'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const FROM = process.env.FROM_EMAIL ?? 'Ania\'s Salon <onboarding@resend.dev>'
-const SALON_NAME = "Ania's Salon"
+const FROM = process.env.FROM_EMAIL ?? 'Anya\'s Salon <onboarding@resend.dev>'
+const SALON_NAME = "Anya's Salon"
 const SALON_PHONE = process.env.SALON_PHONE ?? ''
 const SALON_ADDRESS = process.env.SALON_ADDRESS ?? ''
 

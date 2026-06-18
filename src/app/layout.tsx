@@ -3,11 +3,11 @@ import './globals.css'
 import ThemeProvider from '@/components/ThemeProvider'
 
 export const metadata: Metadata = {
-  title: 'Ania\'s Salon — Nails & Massage',
+  title: 'Anya\'s Salon — Nails & Massage',
   description: 'Luxury nail and massage salon. Expert manicures, pedicures, gel nails, and therapeutic massage treatments. Book your appointment online.',
   keywords: 'nail salon, massage, manicure, pedicure, gel nails, acrylic nails, Swedish massage, deep tissue',
   openGraph: {
-    title: 'Ania\'s Salon — Nails & Massage',
+    title: 'Anya\'s Salon — Nails & Massage',
     description: 'Luxury nail and massage salon. Book your appointment online.',
     type: 'website',
   },

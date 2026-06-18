@@ -43,7 +43,7 @@ export default function Navigation() {
         <div className="section-container flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link href="/" className="font-serif text-xl md:text-2xl font-light tracking-widest">
-            <span className="gold-text">Ania</span>
+            <span className="gold-text">Anya</span>
             <span className="text-cream/60 text-sm tracking-[0.25em] ml-2 uppercase font-sans">Salon</span>
           </Link>
 

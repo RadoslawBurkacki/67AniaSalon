@@ -8,7 +8,12 @@
       "PowerShell(winget install OpenJS.NodeJS.LTS --accept-package-agreements --accept-source-agreements 2>&1)",
       "Bash(curl -s http://localhost:3000 -o /dev/null -w \"/ → %{http_code}\\\\n\")",
       "Bash(curl -s http://localhost:3000/booking -o /dev/null -w \"/booking → %{http_code}\\\\n\")",
-      "Bash(curl -s http://localhost:3000/admin/login -o /dev/null -w \"/admin/login → %{http_code}\\\\n\")"
+      "Bash(curl -s http://localhost:3000/admin/login -o /dev/null -w \"/admin/login → %{http_code}\\\\n\")",
+      "Bash(npm run *)",
+      "Bash(git -C \"c:/Users/radek/Desktop/dev/67AniaSalon\" status)",
+      "Bash(git -C \"c:/Users/radek/Desktop/dev/67AniaSalon\" diff)",
+      "PowerShell(Rename-Item -Path \"C:\\\\Users\\\\radek\\\\Desktop\\\\dev\\\\67AniaSalon\" -NewName \"67AnyaSalon\")",
+      "Bash(git add *)"
     ]
   }
 }

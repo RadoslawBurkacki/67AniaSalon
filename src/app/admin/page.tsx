@@ -72,7 +72,7 @@ export default function AdminPage() {
       <div className="border-b border-border">
         <div className="section-container flex items-center justify-between h-16">
           <Link href="/" className="font-serif text-lg">
-            <span className="gold-text">Ania</span>
+            <span className="gold-text">Anya</span>
             <span className="text-cream/40 text-xs tracking-widest ml-1 font-sans">Admin</span>
           </Link>
           <div className="flex items-center gap-4">

@@ -62,7 +62,7 @@ export default function About() {
             <p className="section-label mb-6">About Me</p>
 
             <h2 className="heading-md text-cream mb-6">
-              Hi, I&apos;m <span className="gold-text">Ania</span>
+              Hi, I&apos;m <span className="gold-text">Anya</span>
             </h2>
 
             <div className="space-y-5 text-cream/60 leading-relaxed mb-10">
@@ -113,7 +113,7 @@ export default function About() {
               transition={{ delay: 0.6 }}
               className="mt-10 pt-8 border-t border-border"
             >
-              <p className="font-serif text-3xl text-gold/80 italic">Ania</p>
+              <p className="font-serif text-3xl text-gold/80 italic">Anya</p>
               <p className="text-cream/30 text-xs tracking-wider mt-1">Owner &amp; Lead Therapist</p>
             </motion.div>
           </motion.div>

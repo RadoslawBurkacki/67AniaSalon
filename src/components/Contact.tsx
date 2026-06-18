@@ -111,7 +111,7 @@ export default function Contact() {
 
             {/* Overlay label */}
             <div className="absolute top-4 left-4 bg-background/80 backdrop-blur-sm border border-gold/30 px-4 py-2 pointer-events-none">
-              <p className="text-gold text-xs tracking-wider uppercase">Ania&apos;s Salon</p>
+              <p className="text-gold text-xs tracking-wider uppercase">Anya&apos;s Salon</p>
               <p className="text-cream/60 text-xs mt-0.5">Update map URL in Contact.tsx</p>
             </div>
           </motion.div>

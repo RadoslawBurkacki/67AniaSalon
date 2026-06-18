@@ -94,7 +94,7 @@ export default function BookingPage() {
             Back to Home
           </Link>
           <div className="font-serif text-lg">
-            <span className="gold-text">Ania</span>
+            <span className="gold-text">Anya</span>
             <span className="text-cream/40 text-sm tracking-widest ml-1 font-sans">Salon</span>
           </div>
         </div>
@@ -364,7 +364,7 @@ export default function BookingPage() {
                 Your appointment has been received.
               </p>
               <p className="text-cream/40 text-sm mb-10">
-                You&apos;ll receive a confirmation from Ania shortly.
+                You&apos;ll receive a confirmation from Anya shortly.
               </p>
 
               <div className="bg-surface border border-gold/20 p-6 inline-block text-left mb-10 min-w-[280px]">

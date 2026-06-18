@@ -15,7 +15,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="font-serif text-2xl mb-4">
-              <span className="gold-text">Ania</span>
+              <span className="gold-text">Anya</span>
               <span className="text-cream/40 text-sm tracking-[0.25em] ml-2 uppercase font-sans">Salon</span>
             </div>
             <p className="text-cream/40 text-sm leading-relaxed max-w-xs">
@@ -73,7 +73,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-border pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-cream/25 text-xs">&copy; {year} Ania&apos;s Salon. All rights reserved.</p>
+          <p className="text-cream/25 text-xs">&copy; {year} Anya&apos;s Salon. All rights reserved.</p>
           <Link href="/admin" className="text-cream/20 hover:text-cream/40 text-xs transition-colors">
             Admin
           </Link>
