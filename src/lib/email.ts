@@ -85,12 +85,13 @@ export async function sendBookingReceived(booking: BookingDetails) {
       If you need to cancel or reschedule, please get in touch as soon as possible.
     </p>`
 
-  return resend.emails.send({
+  const { error } = await resend.emails.send({
     from: FROM,
     to: booking.email,
     subject: `Booking received — ${booking.service_name} on ${formatDate(booking.date)}`,
     html: baseTemplate(body),
   })
+  if (error) throw new Error(`Resend error: ${error.message}`)
 }
 
 export async function sendBookingConfirmed(booking: BookingDetails) {
@@ -110,12 +111,13 @@ export async function sendBookingConfirmed(booking: BookingDetails) {
       Please arrive 5 minutes early. If you need to cancel, please let us know at least 24 hours in advance.
     </p>`
 
-  return resend.emails.send({
+  const { error } = await resend.emails.send({
     from: FROM,
     to: booking.email,
     subject: `Appointment confirmed — ${booking.service_name} on ${formatDate(booking.date)}`,
     html: baseTemplate(body),
   })
+  if (error) throw new Error(`Resend error: ${error.message}`)
 }
 
 export async function sendAdminNewBooking(booking: BookingDetails) {
@@ -137,10 +139,11 @@ export async function sendAdminNewBooking(booking: BookingDetails) {
     ])}
     <p style="margin:24px 0 0;font-size:13px;color:#6a5f52;">Log in to the admin panel to confirm or cancel this booking.</p>`
 
-  return resend.emails.send({
+  const { error } = await resend.emails.send({
     from: FROM,
     to: adminEmail,
     subject: `New booking: ${booking.name} — ${booking.service_name} on ${formatDate(booking.date)}`,
     html: baseTemplate(body),
   })
+  if (error) throw new Error(`Resend error: ${error.message}`)
 }
