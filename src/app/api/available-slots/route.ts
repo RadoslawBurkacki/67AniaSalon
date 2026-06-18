@@ -8,9 +8,13 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+
 export async function GET(req: NextRequest) {
   const date = req.nextUrl.searchParams.get('date')
-  if (!date) return NextResponse.json({ error: 'date is required' }, { status: 400 })
+  if (!date || !DATE_RE.test(date)) {
+    return NextResponse.json({ error: 'date is required and must be YYYY-MM-DD' }, { status: 400 })
+  }
 
   try {
     const [bookingsRes, blockedRes] = await Promise.all([

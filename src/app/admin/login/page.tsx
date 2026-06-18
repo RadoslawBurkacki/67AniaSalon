@@ -23,6 +23,7 @@ export default function AdminLoginPage() {
       setError('Invalid email or password')
       setLoading(false)
     } else {
+      document.cookie = `admin-auth=1; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`
       router.push('/admin')
     }
   }

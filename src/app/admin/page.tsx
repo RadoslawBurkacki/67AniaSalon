@@ -44,6 +44,7 @@ export default function AdminPage() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
+    document.cookie = 'admin-auth=; path=/; max-age=0; SameSite=Strict'
     router.push('/admin/login')
   }
 
