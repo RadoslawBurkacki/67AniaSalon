@@ -67,9 +67,7 @@ export default function BookingPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          service_category: category,
-          service_name: service.name,
-          duration_minutes: service.duration,
+          service_id: service.id,
           date: format(selectedDate, 'yyyy-MM-dd'),
           time_slot: selectedTime,
         }),

@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { z } from 'zod'
-import { Ratelimit } from '@upstash/ratelimit'
-import { Redis } from '@upstash/redis'
 import { NAIL_SERVICES, MASSAGE_SERVICES, TIME_SLOTS } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
@@ -27,19 +25,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-const ratelimit = process.env.UPSTASH_REDIS_REST_URL
-  ? new Ratelimit({ redis: Redis.fromEnv(), limiter: Ratelimit.slidingWindow(5, '60 s') })
-  : null
-
 export async function POST(req: NextRequest) {
-  if (ratelimit) {
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'anonymous'
-    const { success } = await ratelimit.limit(ip)
-    if (!success) {
-      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 })
-    }
-  }
-
   try {
     const body = await req.json()
     const parsed = bookingSchema.safeParse(body)
@@ -60,7 +46,7 @@ export async function POST(req: NextRequest) {
       .eq('date', date)
       .eq('time_slot', time_slot)
       .neq('status', 'cancelled')
-      .single()
+      .maybeSingle()
 
     if (existing) {
       return NextResponse.json({ error: 'This time slot is no longer available. Please choose another.' }, { status: 409 })
