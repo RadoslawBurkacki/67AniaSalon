@@ -80,6 +80,33 @@ create policy "Anon can read blocked slots"
   using (true);
 
 -- ============================================================
+-- SETTINGS TABLE  (admin-controlled feature flags / config)
+-- ============================================================
+create table if not exists settings (
+  key        text primary key,
+  value      text not null,
+  updated_at timestamptz default now()
+);
+
+alter table settings enable row level security;
+
+create policy "Anyone can read settings"
+  on settings for select
+  to anon, authenticated
+  using (true);
+
+create policy "Authenticated can upsert settings"
+  on settings for all
+  to authenticated
+  using (true)
+  with check (true);
+
+-- Seed defaults (safe to re-run)
+insert into settings (key, value)
+  values ('admin_booking_notifications', 'true')
+  on conflict (key) do nothing;
+
+-- ============================================================
 -- ADMIN USER SETUP
 -- ============================================================
 -- After running this schema:

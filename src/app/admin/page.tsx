@@ -5,11 +5,11 @@ import { motion } from 'framer-motion'
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths } from 'date-fns'
 import { supabase } from '@/lib/supabase'
 import { type Booking } from '@/lib/types'
-import { CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight, LogOut, RefreshCw, Calendar, List } from 'lucide-react'
+import { CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight, LogOut, RefreshCw, Calendar, List, Settings } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-type View = 'calendar' | 'list'
+type View = 'calendar' | 'list' | 'settings'
 
 const STATUS_STYLES = {
   pending: 'text-amber-400 border-amber-400/30 bg-amber-400/10',
@@ -25,6 +25,8 @@ export default function AdminPage() {
   const [calendarMonth, setCalendarMonth] = useState(new Date())
   const [selectedDay, setSelectedDay] = useState<Date | null>(new Date())
   const [updatingId, setUpdatingId] = useState<string | null>(null)
+  const [adminNotifications, setAdminNotifications] = useState<boolean | null>(null)
+  const [savingNotification, setSavingNotification] = useState(false)
 
   const fetchBookings = useCallback(async () => {
     setLoading(true)
@@ -34,6 +36,30 @@ export default function AdminPage() {
   }, [])
 
   useEffect(() => { fetchBookings() }, [fetchBookings])
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(r => r.json())
+      .then(({ settings }) => {
+        setAdminNotifications(settings?.admin_booking_notifications !== 'false')
+      })
+      .catch(() => setAdminNotifications(true))
+  }, [])
+
+  const toggleAdminNotifications = async (enabled: boolean) => {
+    setSavingNotification(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    await fetch('/api/settings', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token ?? ''}`,
+      },
+      body: JSON.stringify({ key: 'admin_booking_notifications', value: String(enabled) }),
+    })
+    setAdminNotifications(enabled)
+    setSavingNotification(false)
+  }
 
   const updateStatus = async (id: string, status: string) => {
     setUpdatingId(id)
@@ -104,11 +130,12 @@ export default function AdminPage() {
 
         {/* View toggle */}
         <div className="flex items-center gap-4 mb-6">
-          <h1 className="font-serif text-2xl text-cream">Bookings</h1>
+          <h1 className="font-serif text-2xl text-cream">{view === 'settings' ? 'Settings' : 'Bookings'}</h1>
           <div className="flex border border-border ml-auto">
             {([
               { id: 'calendar' as const, Icon: Calendar, label: 'Calendar' },
               { id: 'list' as const, Icon: List, label: 'List' },
+              { id: 'settings' as const, Icon: Settings, label: 'Settings' },
             ] as const).map(({ id, Icon, label }) => (
               <button
                 key={id}
@@ -196,6 +223,41 @@ export default function AdminPage() {
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* SETTINGS VIEW */}
+        {view === 'settings' && (
+          <div className="max-w-lg">
+            <div className="bg-surface border border-border p-6">
+              <h2 className="font-serif text-lg text-cream mb-1">Email Notifications</h2>
+              <p className="text-cream/40 text-sm mb-6">Control which emails are sent automatically.</p>
+
+              <div className="flex items-center justify-between py-4 border-b border-border">
+                <div>
+                  <p className="text-cream text-sm">Admin alert on new booking</p>
+                  <p className="text-cream/40 text-xs mt-0.5">
+                    Send an email to the configured ADMIN_EMAIL when a new booking is received
+                  </p>
+                </div>
+                <button
+                  onClick={() => adminNotifications !== null && toggleAdminNotifications(!adminNotifications)}
+                  disabled={savingNotification || adminNotifications === null}
+                  className={`relative w-11 h-6 rounded-full transition-colors duration-200 shrink-0 ml-6 disabled:opacity-50 ${
+                    adminNotifications ? 'bg-gold' : 'bg-surface border border-border'
+                  }`}
+                  aria-label="Toggle admin notifications"
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-background transition-transform duration-200 ${
+                    adminNotifications ? 'translate-x-5' : 'translate-x-0'
+                  }`} />
+                </button>
+              </div>
+
+              <p className="text-cream/25 text-xs mt-4">
+                Customer confirmation emails are always sent and cannot be disabled here.
+              </p>
             </div>
           </div>
         )}

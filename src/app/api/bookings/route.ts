@@ -72,9 +72,20 @@ export async function POST(req: NextRequest) {
 
     if (error) throw error
 
+    // Check whether admin booking notifications are enabled
+    const { data: settingRow } = await supabase
+      .from('settings')
+      .select('value')
+      .eq('key', 'admin_booking_notifications')
+      .maybeSingle()
+    const adminNotificationsOn = settingRow?.value !== 'false'
+
     // Send emails — await so errors appear in Vercel logs
     try {
-      await Promise.all([sendBookingReceived(data), sendAdminNewBooking(data)])
+      await Promise.all([
+        sendBookingReceived(data),
+        adminNotificationsOn ? sendAdminNewBooking(data) : Promise.resolve(),
+      ])
     } catch (emailErr) {
       console.error('Email send failed:', emailErr)
     }
