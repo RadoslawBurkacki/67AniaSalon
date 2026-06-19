@@ -160,14 +160,6 @@ create policy "Authenticated can manage services"
 -- Seed services (skipped if table already has rows)
 insert into services (category, name, description, duration, price, popular, sort_order)
 select * from (values
-  ('massage', 'Swedish Relaxation',        'Gentle full-body massage to relieve tension & stress',           60,  70.00, true,  1),
-  ('massage', 'Swedish — Extended',        'Extended full-body Swedish massage',                             90,  95.00, false, 2),
-  ('massage', 'Deep Tissue',               'Targeted deep muscle work for chronic tension',                  60,  80.00, true,  3),
-  ('massage', 'Deep Tissue — Extended',    'Longer deep tissue session',                                     90, 110.00, false, 4),
-  ('massage', 'Hot Stone Massage',         'Warm volcanic stones melt away muscle tension',                  90, 100.00, true,  5),
-  ('massage', 'Aromatherapy Massage',      'Relaxing massage with premium essential oils',                   60,  75.00, false, 6),
-  ('massage', 'Couples Massage',           'Side-by-side relaxation for two',                                60, 130.00, false, 7),
-  ('massage', 'Pamper Package',                        'Gel manicure + 60 min Swedish massage',                                                     120, 110.00, false, 8),
   ('lashes',  'Classic Lash Extensions',               'Single-strand classic extensions for a natural, subtle look',                               105,  20.00, false, 1),
   ('lashes',  'Eyelash Extensions + Brow Lamination',  'Full lash set combined with brow lamination — add your preferred lash style in the notes', 180,  60.00, true,  2),
   ('lashes',  'Double Classic Eyelash Extensions',     'Two layers of classic lash extensions for added fullness',                                  120,  25.00, false, 3),
