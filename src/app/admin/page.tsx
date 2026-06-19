@@ -196,14 +196,37 @@ export default function AdminPage() {
         )}
       </AnimatePresence>
 
-      {/* Top bar */}
+      {/* Top bar with nav */}
       <div className="border-b border-border">
-        <div className="section-container flex items-center justify-between h-16">
-          <Link href="/" className="font-serif text-lg">
+        <div className="section-container flex items-center gap-6 h-14">
+          <Link href="/" className="font-serif text-lg shrink-0">
             <span className="gold-text">Anya</span>
             <span className="text-cream/40 text-xs tracking-widest ml-1 font-sans">Admin</span>
           </Link>
-          <div className="flex items-center gap-4">
+
+          <nav className="flex flex-1 overflow-x-auto">
+            {([
+              { id: 'settings' as const, Icon: Settings, label: 'Settings' },
+              { id: 'calendar' as const, Icon: Calendar, label: 'Calendar' },
+              { id: 'list' as const, Icon: List, label: 'List' },
+              { id: 'schedule' as const, Icon: CalendarClock, label: 'Schedule' },
+              { id: 'services' as const, Icon: Scissors, label: 'Services' },
+            ] as const).map(({ id, Icon, label }) => (
+              <button
+                key={id}
+                onClick={() => setView(id)}
+                className={`flex items-center gap-1.5 px-4 h-14 text-xs tracking-wide whitespace-nowrap border-b-2 transition-all duration-200 ${
+                  view === id
+                    ? 'border-gold text-gold'
+                    : 'border-transparent text-cream/40 hover:text-cream hover:border-cream/20'
+                }`}
+              >
+                <Icon size={13} /> {label}
+              </button>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-4 shrink-0">
             <button onClick={fetchBookings} disabled={loading} className="text-cream/40 hover:text-gold transition-colors" title="Refresh">
               <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
             </button>
@@ -230,31 +253,9 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* View toggle */}
-        <div className="flex items-center gap-4 mb-6">
-          <h1 className="font-serif text-2xl text-cream">
-            {view === 'settings' ? 'Settings' : view === 'schedule' ? 'Schedule' : view === 'services' ? 'Services' : 'Bookings'}
-          </h1>
-          <div className="flex flex-wrap border border-border ml-auto">
-            {([
-              { id: 'calendar' as const, Icon: Calendar, label: 'Calendar' },
-              { id: 'list' as const, Icon: List, label: 'List' },
-              { id: 'schedule' as const, Icon: CalendarClock, label: 'Schedule' },
-              { id: 'services' as const, Icon: Scissors, label: 'Services' },
-              { id: 'settings' as const, Icon: Settings, label: 'Settings' },
-            ] as const).map(({ id, Icon, label }) => (
-              <button
-                key={id}
-                onClick={() => setView(id)}
-                className={`flex items-center gap-2 px-4 py-2 text-xs transition-all duration-300 ${
-                  view === id ? 'bg-gold text-background' : 'text-cream/50 hover:text-cream'
-                }`}
-              >
-                <Icon size={13} /> {label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <h1 className="font-serif text-2xl text-cream mb-6">
+          {view === 'settings' ? 'Settings' : view === 'schedule' ? 'Schedule' : view === 'services' ? 'Services' : 'Bookings'}
+        </h1>
 
         {/* CALENDAR VIEW */}
         {view === 'calendar' && (
