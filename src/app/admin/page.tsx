@@ -401,10 +401,19 @@ export default function AdminPage() {
                 </div>
 
                 <button
-                  onClick={() => saveSettings(
-                    { schedule_days: workingDays.join(','), schedule_slots: workingSlots.join(',') },
-                    setSavingSchedule, setScheduleSaved
-                  )}
+                  onClick={() => {
+                    const sorted = [...workingSlots].sort()
+                    const first = sorted[0]
+                    const last = sorted[sorted.length - 1]
+                    const hoursStr = first && last ? `${formatTime(first)} – ${formatTime(last)}` : 'Closed'
+                    saveSettings({
+                      schedule_days: workingDays.join(','),
+                      schedule_slots: workingSlots.join(','),
+                      hours_mon_fri: [1,2,3,4,5].some(d => workingDays.includes(d)) ? hoursStr : 'Closed',
+                      hours_sat: workingDays.includes(6) ? hoursStr : 'Closed',
+                      hours_sun: workingDays.includes(0) ? hoursStr : 'Closed',
+                    }, setSavingSchedule, setScheduleSaved)
+                  }}
                   disabled={savingSchedule}
                   className="mt-6 btn-primary disabled:opacity-50"
                 >
