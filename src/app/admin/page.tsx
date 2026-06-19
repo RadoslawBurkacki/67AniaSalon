@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isToday, addMonths, subMonths } from 'date-fns'
 import { supabase } from '@/lib/supabase'
 import { type Booking, TIME_SLOTS, formatTime } from '@/lib/types'
-import { CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight, LogOut, RefreshCw, Calendar, List, Settings, CalendarClock, Scissors, Plus, Trash2 } from 'lucide-react'
+import { CheckCircle, XCircle, Clock, ChevronLeft, ChevronRight, LogOut, RefreshCw, Calendar, List, Settings, CalendarClock, Scissors, Plus, Trash2, Star } from 'lucide-react'
 import type { Service } from '@/lib/types'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -477,6 +477,16 @@ export default function AdminPage() {
             setSavingDiscount(false)
           }
 
+          const togglePopular = async (svc: Service) => {
+            const headers = await authHeaders()
+            const res = await fetch('/api/services', {
+              method: 'PATCH',
+              headers,
+              body: JSON.stringify({ id: svc.id, popular: !svc.popular }),
+            })
+            if (res.ok) setAdminServices(prev => prev.map(s => s.id === svc.id ? { ...s, popular: !svc.popular } : s))
+          }
+
           const isDiscountActive = (svc: { discount_price?: number | null; discount_ends_at?: string | null }) =>
             !!svc.discount_price && (!svc.discount_ends_at || new Date(svc.discount_ends_at) > new Date())
 
@@ -534,6 +544,16 @@ export default function AdminPage() {
                           ) : (
                             <span className="text-gold text-sm">£{Number(svc.price).toFixed(2)}</span>
                           )}
+                          <button
+                            onClick={() => togglePopular(svc)}
+                            title={svc.popular ? 'Remove from favourites' : 'Mark as favourite'}
+                            className="transition-colors"
+                          >
+                            <Star
+                              size={15}
+                              className={svc.popular ? 'text-gold fill-gold' : 'text-cream/20 hover:text-gold'}
+                            />
+                          </button>
                           <button
                             onClick={() => {
                               if (discountOpen) { setDiscountServiceId(null); return }

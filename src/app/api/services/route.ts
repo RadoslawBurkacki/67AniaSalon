@@ -48,12 +48,18 @@ export async function PATCH(req: NextRequest) {
   const token = requireAuth(req)
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { id, discount_price, discount_ends_at } = await req.json()
+  const body = await req.json()
+  const { id } = body
   if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
+
+  const patch: Record<string, unknown> = {}
+  if ('discount_price' in body) patch.discount_price = body.discount_price ?? null
+  if ('discount_ends_at' in body) patch.discount_ends_at = body.discount_ends_at ?? null
+  if ('popular' in body) patch.popular = !!body.popular
 
   const { data, error } = await authedClient(token)
     .from('services')
-    .update({ discount_price: discount_price ?? null, discount_ends_at: discount_ends_at ?? null })
+    .update(patch)
     .eq('id', id)
     .select()
     .single()
