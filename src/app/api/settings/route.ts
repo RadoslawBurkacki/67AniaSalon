@@ -23,14 +23,20 @@ export async function PATCH(req: NextRequest) {
     global: { headers: { Authorization: authHeader } },
   })
 
-  const { key, value } = await req.json()
-  if (!key || value === undefined) {
+  const body = await req.json()
+
+  // Accept either { key, value } (single) or { settings: { key: value, ... } } (bulk)
+  const pairs: { key: string; value: string }[] = body.settings
+    ? Object.entries(body.settings as Record<string, string>).map(([key, value]) => ({ key, value }))
+    : [{ key: body.key, value: String(body.value) }]
+
+  if (pairs.length === 0 || pairs.some(p => !p.key)) {
     return NextResponse.json({ error: 'key and value required' }, { status: 400 })
   }
 
   const { error } = await supabase
     .from('settings')
-    .upsert({ key, value: String(value), updated_at: new Date().toISOString() })
+    .upsert(pairs.map(p => ({ ...p, updated_at: new Date().toISOString() })))
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })

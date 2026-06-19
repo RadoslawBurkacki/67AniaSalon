@@ -101,9 +101,13 @@ create policy "Authenticated can upsert settings"
   using (true)
   with check (true);
 
--- Seed defaults (safe to re-run)
-insert into settings (key, value)
-  values ('admin_booking_notifications', 'true')
+-- Seed defaults (safe to re-run; empty string = fall back to env var)
+insert into settings (key, value) values
+  ('admin_booking_notifications', 'true'),
+  ('admin_email',                 ''),
+  ('from_email',                  ''),
+  ('salon_phone',                 ''),
+  ('salon_address',               '')
   on conflict (key) do nothing;
 
 -- ============================================================

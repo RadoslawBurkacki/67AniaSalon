@@ -27,6 +27,9 @@ export default function AdminPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [adminNotifications, setAdminNotifications] = useState<boolean | null>(null)
   const [savingNotification, setSavingNotification] = useState(false)
+  const [emailConfig, setEmailConfig] = useState({ admin_email: '', from_email: '', salon_phone: '', salon_address: '' })
+  const [savingConfig, setSavingConfig] = useState(false)
+  const [configSaved, setConfigSaved] = useState(false)
 
   const fetchBookings = useCallback(async () => {
     setLoading(true)
@@ -42,23 +45,45 @@ export default function AdminPage() {
       .then(r => r.json())
       .then(({ settings }) => {
         setAdminNotifications(settings?.admin_booking_notifications !== 'false')
+        setEmailConfig({
+          admin_email: settings?.admin_email ?? '',
+          from_email: settings?.from_email ?? '',
+          salon_phone: settings?.salon_phone ?? '',
+          salon_address: settings?.salon_address ?? '',
+        })
       })
       .catch(() => setAdminNotifications(true))
   }, [])
 
+  const authHeaders = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${session?.access_token ?? ''}`,
+    }
+  }
+
   const toggleAdminNotifications = async (enabled: boolean) => {
     setSavingNotification(true)
-    const { data: { session } } = await supabase.auth.getSession()
     await fetch('/api/settings', {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${session?.access_token ?? ''}`,
-      },
+      headers: await authHeaders(),
       body: JSON.stringify({ key: 'admin_booking_notifications', value: String(enabled) }),
     })
     setAdminNotifications(enabled)
     setSavingNotification(false)
+  }
+
+  const saveEmailConfig = async () => {
+    setSavingConfig(true)
+    await fetch('/api/settings', {
+      method: 'PATCH',
+      headers: await authHeaders(),
+      body: JSON.stringify({ settings: emailConfig }),
+    })
+    setSavingConfig(false)
+    setConfigSaved(true)
+    setTimeout(() => setConfigSaved(false), 2000)
   }
 
   const updateStatus = async (id: string, status: string) => {
@@ -229,16 +254,77 @@ export default function AdminPage() {
 
         {/* SETTINGS VIEW */}
         {view === 'settings' && (
-          <div className="max-w-lg">
+          <div className="max-w-lg space-y-6">
+
+            {/* Email addresses */}
             <div className="bg-surface border border-border p-6">
-              <h2 className="font-serif text-lg text-cream mb-1">Email Notifications</h2>
+              <h2 className="font-serif text-lg text-cream mb-1">Email Addresses</h2>
+              <p className="text-cream/40 text-sm mb-6">
+                Leave blank to use the value from the server environment variable.
+              </p>
+
+              <div className="space-y-5">
+                {([
+                  { key: 'admin_email', label: 'Admin Email', placeholder: 'ADMIN_EMAIL env var', hint: 'Who receives new booking alerts' },
+                  { key: 'from_email', label: 'From Email', placeholder: 'FROM_EMAIL env var', hint: 'Sender address shown to clients' },
+                ] as const).map(({ key, label, placeholder, hint }) => (
+                  <div key={key}>
+                    <label className="block text-xs text-cream/50 tracking-wider uppercase mb-1.5">{label}</label>
+                    <p className="text-cream/30 text-xs mb-2">{hint}</p>
+                    <input
+                      type="email"
+                      value={emailConfig[key]}
+                      onChange={e => setEmailConfig(prev => ({ ...prev, [key]: e.target.value }))}
+                      placeholder={placeholder}
+                      className="w-full bg-background border border-border focus:border-gold outline-none px-4 py-2.5 text-cream text-sm placeholder:text-cream/20 transition-colors"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Salon info in email footers */}
+            <div className="bg-surface border border-border p-6">
+              <h2 className="font-serif text-lg text-cream mb-1">Salon Info</h2>
+              <p className="text-cream/40 text-sm mb-6">Shown in the footer of every email sent to clients.</p>
+
+              <div className="space-y-5">
+                {([
+                  { key: 'salon_phone', label: 'Phone', placeholder: 'SALON_PHONE env var' },
+                  { key: 'salon_address', label: 'Address', placeholder: 'SALON_ADDRESS env var' },
+                ] as const).map(({ key, label, placeholder }) => (
+                  <div key={key}>
+                    <label className="block text-xs text-cream/50 tracking-wider uppercase mb-1.5">{label}</label>
+                    <input
+                      type="text"
+                      value={emailConfig[key]}
+                      onChange={e => setEmailConfig(prev => ({ ...prev, [key]: e.target.value }))}
+                      placeholder={placeholder}
+                      className="w-full bg-background border border-border focus:border-gold outline-none px-4 py-2.5 text-cream text-sm placeholder:text-cream/20 transition-colors"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <button
+                onClick={saveEmailConfig}
+                disabled={savingConfig}
+                className="mt-6 btn-primary disabled:opacity-50"
+              >
+                {configSaved ? 'Saved' : savingConfig ? 'Saving…' : 'Save Changes'}
+              </button>
+            </div>
+
+            {/* Notifications toggle */}
+            <div className="bg-surface border border-border p-6">
+              <h2 className="font-serif text-lg text-cream mb-1">Notifications</h2>
               <p className="text-cream/40 text-sm mb-6">Control which emails are sent automatically.</p>
 
-              <div className="flex items-center justify-between py-4 border-b border-border">
+              <div className="flex items-center justify-between">
                 <div>
                   <p className="text-cream text-sm">Admin alert on new booking</p>
                   <p className="text-cream/40 text-xs mt-0.5">
-                    Send an email to the configured ADMIN_EMAIL when a new booking is received
+                    Send an email to the Admin Email above when a new booking arrives
                   </p>
                 </div>
                 <button
@@ -255,10 +341,11 @@ export default function AdminPage() {
                 </button>
               </div>
 
-              <p className="text-cream/25 text-xs mt-4">
+              <p className="text-cream/25 text-xs mt-6">
                 Customer confirmation emails are always sent and cannot be disabled here.
               </p>
             </div>
+
           </div>
         )}
 

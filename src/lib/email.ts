@@ -1,14 +1,45 @@
 import { Resend } from 'resend'
+import { createClient } from '@supabase/supabase-js'
 import { formatDate, formatTime } from './types'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-
-const FROM = process.env.FROM_EMAIL ?? 'Anya\'s Salon <onboarding@resend.dev>'
 const SALON_NAME = "Anya's Salon"
-const SALON_PHONE = process.env.SALON_PHONE ?? ''
-const SALON_ADDRESS = process.env.SALON_ADDRESS ?? ''
 
-function baseTemplate(content: string) {
+interface EmailConfig {
+  from: string
+  adminEmail: string | null
+  adminNotificationsEnabled: boolean
+  salonPhone: string
+  salonAddress: string
+}
+
+async function fetchEmailConfig(): Promise<EmailConfig> {
+  try {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    const { data } = await supabase.from('settings').select('key, value')
+    const s = Object.fromEntries((data ?? []).map(r => [r.key, r.value as string]))
+    return {
+      from: s.from_email?.trim() || process.env.FROM_EMAIL || `${SALON_NAME} <onboarding@resend.dev>`,
+      adminEmail: s.admin_email?.trim() || process.env.ADMIN_EMAIL || null,
+      adminNotificationsEnabled: s.admin_booking_notifications !== 'false',
+      salonPhone: s.salon_phone?.trim() || process.env.SALON_PHONE || '',
+      salonAddress: s.salon_address?.trim() || process.env.SALON_ADDRESS || '',
+    }
+  } catch {
+    return {
+      from: process.env.FROM_EMAIL ?? `${SALON_NAME} <onboarding@resend.dev>`,
+      adminEmail: process.env.ADMIN_EMAIL ?? null,
+      adminNotificationsEnabled: true,
+      salonPhone: process.env.SALON_PHONE ?? '',
+      salonAddress: process.env.SALON_ADDRESS ?? '',
+    }
+  }
+}
+
+function baseTemplate(content: string, cfg: EmailConfig) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,8 +63,8 @@ function baseTemplate(content: string) {
         <!-- Footer -->
         <tr>
           <td style="padding:24px 40px;border-top:1px solid #2a2320;text-align:center;">
-            ${SALON_PHONE ? `<p style="margin:0 0 4px;font-size:12px;color:#6a5f52;">${SALON_PHONE}</p>` : ''}
-            ${SALON_ADDRESS ? `<p style="margin:0 0 4px;font-size:12px;color:#6a5f52;">${SALON_ADDRESS}</p>` : ''}
+            ${cfg.salonPhone ? `<p style="margin:0 0 4px;font-size:12px;color:#6a5f52;">${cfg.salonPhone}</p>` : ''}
+            ${cfg.salonAddress ? `<p style="margin:0 0 4px;font-size:12px;color:#6a5f52;">${cfg.salonAddress}</p>` : ''}
             <p style="margin:8px 0 0;font-size:11px;color:#3a3028;">&copy; ${new Date().getFullYear()} ${SALON_NAME}</p>
           </td>
         </tr>
@@ -68,6 +99,7 @@ interface BookingDetails {
 }
 
 export async function sendBookingReceived(booking: BookingDetails) {
+  const cfg = await fetchEmailConfig()
   const body = `
     <h2 style="margin:0 0 8px;font-size:22px;font-weight:300;color:#f5f0ea;">Booking Received</h2>
     <p style="margin:0 0 4px;font-size:14px;color:#a09080;">Hi ${booking.name},</p>
@@ -86,15 +118,16 @@ export async function sendBookingReceived(booking: BookingDetails) {
     </p>`
 
   const { error } = await resend.emails.send({
-    from: FROM,
+    from: cfg.from,
     to: booking.email,
     subject: `Booking received — ${booking.service_name} on ${formatDate(booking.date)}`,
-    html: baseTemplate(body),
+    html: baseTemplate(body, cfg),
   })
   if (error) throw new Error(`Resend error: ${error.message}`)
 }
 
 export async function sendBookingConfirmed(booking: BookingDetails) {
+  const cfg = await fetchEmailConfig()
   const body = `
     <h2 style="margin:0 0 8px;font-size:22px;font-weight:300;color:#c9a96e;">Appointment Confirmed ✓</h2>
     <p style="margin:0 0 4px;font-size:14px;color:#a09080;">Hi ${booking.name},</p>
@@ -112,17 +145,17 @@ export async function sendBookingConfirmed(booking: BookingDetails) {
     </p>`
 
   const { error } = await resend.emails.send({
-    from: FROM,
+    from: cfg.from,
     to: booking.email,
     subject: `Appointment confirmed — ${booking.service_name} on ${formatDate(booking.date)}`,
-    html: baseTemplate(body),
+    html: baseTemplate(body, cfg),
   })
   if (error) throw new Error(`Resend error: ${error.message}`)
 }
 
 export async function sendAdminNewBooking(booking: BookingDetails) {
-  const adminEmail = process.env.ADMIN_EMAIL
-  if (!adminEmail) return
+  const cfg = await fetchEmailConfig()
+  if (!cfg.adminNotificationsEnabled || !cfg.adminEmail) return
 
   const body = `
     <h2 style="margin:0 0 8px;font-size:22px;font-weight:300;color:#c9a96e;">New Booking</h2>
@@ -140,10 +173,10 @@ export async function sendAdminNewBooking(booking: BookingDetails) {
     <p style="margin:24px 0 0;font-size:13px;color:#6a5f52;">Log in to the admin panel to confirm or cancel this booking.</p>`
 
   const { error } = await resend.emails.send({
-    from: FROM,
-    to: adminEmail,
+    from: cfg.from,
+    to: cfg.adminEmail,
     subject: `New booking: ${booking.name} — ${booking.service_name} on ${formatDate(booking.date)}`,
-    html: baseTemplate(body),
+    html: baseTemplate(body, cfg),
   })
   if (error) throw new Error(`Resend error: ${error.message}`)
 }
