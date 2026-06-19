@@ -37,6 +37,7 @@ export default function AdminPage() {
   })
   const [savingSiteInfo, setSavingSiteInfo] = useState(false)
   const [siteInfoSaved, setSiteInfoSaved] = useState(false)
+  const [settingsTab, setSettingsTab] = useState<'general' | 'emails'>('general')
 
   const fetchBookings = useCallback(async () => {
     setLoading(true)
@@ -273,7 +274,23 @@ export default function AdminPage() {
         {view === 'settings' && (
           <div className="max-w-lg space-y-6">
 
+            {/* Settings sub-tabs */}
+            <div className="flex border border-border w-fit">
+              {(['general', 'emails'] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setSettingsTab(tab)}
+                  className={`px-5 py-2 text-xs capitalize transition-all duration-300 ${
+                    settingsTab === tab ? 'bg-gold text-background' : 'text-cream/50 hover:text-cream'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
             {/* Site Info */}
+            {settingsTab === 'general' && <>
             <div className="bg-surface border border-border p-6">
               <h2 className="font-serif text-lg text-cream mb-1">Site Info</h2>
               <p className="text-cream/40 text-sm mb-6">
@@ -359,9 +376,10 @@ export default function AdminPage() {
                 {siteInfoSaved ? 'Saved' : savingSiteInfo ? 'Saving…' : 'Save Site Info'}
               </button>
             </div>
+            </>}
 
             {/* Email addresses */}
-            <div className="bg-surface border border-border p-6">
+            {settingsTab === 'emails' && <><div className="bg-surface border border-border p-6">
               <h2 className="font-serif text-lg text-cream mb-1">Email Config</h2>
               <p className="text-cream/40 text-sm mb-6">
                 Leave blank to use the server environment variable fallback.
@@ -423,6 +441,7 @@ export default function AdminPage() {
                 Customer confirmation emails are always sent and cannot be disabled here.
               </p>
             </div>
+            </>}
 
           </div>
         )}
