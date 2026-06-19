@@ -14,10 +14,10 @@ export interface SiteConfig {
 }
 
 export const DEFAULT_MAP_URL =
-  'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2482.944!2d-0.1276!3d51.5074!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTHCsDMwJzI2LjYiTiAwwrAwNyc0MS43Ilc!5e0!3m2!1sen!2suk!4v0'
+  'https://maps.google.com/maps?q=102+Pettigrew+Street,+Glasgow,+G32+7XU&output=embed&z=16'
 
 export const defaultSiteConfig: SiteConfig = {
-  address: '123 Beauty Lane\nYour Town, AB12 3CD',
+  address: '102 Pettigrew Street\nGlasgow, G32 7XU',
   phone: '+44 7700 000000',
   email: 'hello@anyasalon.com',
   mapUrl: DEFAULT_MAP_URL,

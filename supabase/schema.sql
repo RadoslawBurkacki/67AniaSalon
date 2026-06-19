@@ -194,3 +194,9 @@ alter table bookings drop constraint if exists bookings_service_category_check;
 alter table bookings add constraint bookings_service_category_check
   check (service_category in ('massage', 'lashes'));
 update bookings set service_category = 'lashes' where service_category in ('eyelash', 'eyebrow');
+
+-- Set salon address and map URL
+insert into settings (key, value) values
+  ('site_address', '102 Pettigrew Street' || chr(10) || 'Glasgow, G32 7XU'),
+  ('site_map_url', 'https://maps.google.com/maps?q=102+Pettigrew+Street,+Glasgow,+G32+7XU&output=embed&z=16')
+on conflict (key) do update set value = excluded.value, updated_at = now();
