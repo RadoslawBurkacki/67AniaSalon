@@ -39,6 +39,7 @@ export default function AdminPage() {
   })
   const [savingSiteInfo, setSavingSiteInfo] = useState(false)
   const [siteInfoSaved, setSiteInfoSaved] = useState(false)
+  const [siteInfoError, setSiteInfoError] = useState<string | null>(null)
   const [settingsTab, setSettingsTab] = useState<'general' | 'emails'>('general')
   const [workingDays, setWorkingDays] = useState<number[]>([1,2,3,4,5,6])
   const [workingSlots, setWorkingSlots] = useState<string[]>([...TIME_SLOTS])
@@ -143,16 +144,27 @@ export default function AdminPage() {
     data: Record<string, string>,
     setSaving: (v: boolean) => void,
     setSaved: (v: boolean) => void,
+    setError?: (v: string | null) => void,
   ) => {
     setSaving(true)
-    await fetch('/api/settings', {
-      method: 'PATCH',
-      headers: await authHeaders(),
-      body: JSON.stringify({ settings: data }),
-    })
+    setError?.(null)
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'PATCH',
+        headers: await authHeaders(),
+        body: JSON.stringify({ settings: data }),
+      })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        setError?.(body.error ?? `Error ${res.status}`)
+      } else {
+        setSaved(true)
+        setTimeout(() => setSaved(false), 2000)
+      }
+    } catch {
+      setError?.('Network error — please try again')
+    }
     setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
   }
 
   const updateStatus = async (id: string, status: string) => {
@@ -953,10 +965,13 @@ export default function AdminPage() {
                 </div>
               </div>
 
+              {siteInfoError && (
+                <p className="mt-4 text-red-400 text-sm">{siteInfoError}</p>
+              )}
               <button
-                onClick={() => saveSettings(siteInfo, setSavingSiteInfo, setSiteInfoSaved)}
+                onClick={() => saveSettings(siteInfo, setSavingSiteInfo, setSiteInfoSaved, setSiteInfoError)}
                 disabled={savingSiteInfo}
-                className="mt-6 btn-primary disabled:opacity-50"
+                className="mt-4 btn-primary disabled:opacity-50"
               >
                 {siteInfoSaved ? 'Saved' : savingSiteInfo ? 'Saving…' : 'Save Site Info'}
               </button>

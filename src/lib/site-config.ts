@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { unstable_noStore as noStore } from 'next/cache'
 
 export interface SiteConfig {
   address: string
@@ -28,6 +29,7 @@ export const defaultSiteConfig: SiteConfig = {
 }
 
 export async function getSiteConfig(): Promise<SiteConfig> {
+  noStore()
   try {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
