@@ -5,10 +5,10 @@ import { Award, Heart, Sparkles, Users } from 'lucide-react'
 import Image from 'next/image'
 
 const highlights = [
-  { Icon: Award, title: 'Certified Professional', desc: 'Fully qualified in lash artistry, brow treatments and therapeutic massage' },
+  { Icon: Award, title: 'Freshly Qualified', desc: 'Certified in lash artistry, brow treatments and therapeutic massage' },
   { Icon: Heart, title: 'Passion for Detail', desc: 'Every client receives personalised attention and care' },
   { Icon: Sparkles, title: 'Premium Products', desc: 'Only the finest professional-grade products used' },
-  { Icon: Users, title: 'Loyal Clientele', desc: 'Building long-term relationships built on trust and results' },
+  { Icon: Users, title: 'Personal Service', desc: 'Every client gets my full attention — no rushing, no shortcuts' },
 ]
 
 export default function About() {
@@ -47,8 +47,8 @@ export default function About() {
               transition={{ duration: 0.5, delay: 0.5 }}
               className="absolute -bottom-6 -right-6 bg-surface border border-gold/30 p-6 max-w-[180px]"
             >
-              <div className="font-serif text-4xl text-gold font-light">10+</div>
-              <div className="text-cream/50 text-xs tracking-wider uppercase mt-1">Years of<br />Experience</div>
+              <div className="font-serif text-4xl text-gold font-light">✓</div>
+              <div className="text-cream/50 text-xs tracking-wider uppercase mt-1">Fully<br />Qualified</div>
             </motion.div>
           </motion.div>
 
@@ -71,14 +71,9 @@ export default function About() {
                 I believe every visit should leave you feeling refreshed, confident, and truly cared for.
               </p>
               <p>
-                With over a decade of experience in lash extensions, brow treatments and therapeutic
-                massage, I&apos;ve had the privilege of working with hundreds of clients, each with
-                their own unique needs. I approach every treatment with patience, creativity, and a
-                commitment to excellence.
-              </p>
-              <p>
-                Whether you&apos;re coming in for a lash set, brow lamination, or a relaxing massage
-                — you&apos;re in expert hands.
+                Freshly qualified and passionate about what I do, I&apos;m now welcoming my first
+                clients and couldn&apos;t be more excited. I bring dedication, a careful eye for detail,
+                and a genuine love for making people feel their best.
               </p>
             </div>
 
