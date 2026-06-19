@@ -9,7 +9,7 @@ create table if not exists bookings (
   name              text not null,
   email             text not null,
   phone             text not null,
-  service_category  text not null check (service_category in ('nail', 'massage')),
+  service_category  text not null check (service_category in ('massage', 'eyelash', 'eyebrow')),
   service_name      text not null,
   duration_minutes  int  not null default 60,
   date              date not null,
@@ -126,11 +126,11 @@ insert into settings (key, value) values
 -- Fix service_category constraint to include eyelash & eyebrow
 alter table bookings drop constraint if exists bookings_service_category_check;
 alter table bookings add constraint bookings_service_category_check
-  check (service_category in ('nail', 'massage', 'eyelash', 'eyebrow'));
+  check (service_category in ('massage', 'eyelash', 'eyebrow'));
 
 create table if not exists services (
   id          uuid primary key default gen_random_uuid(),
-  category    text not null check (category in ('nail', 'massage', 'eyelash', 'eyebrow')),
+  category    text not null check (category in ('massage', 'eyelash', 'eyebrow')),
   name        text not null,
   description text not null default '',
   duration    int  not null default 60,
@@ -158,14 +158,6 @@ create policy "Authenticated can manage services"
 -- Seed services (skipped if table already has rows)
 insert into services (category, name, description, duration, price, popular, sort_order)
 select * from (values
-  ('nail',    'Classic Manicure',          'Shape, buff, cuticle care & polish',                             45,  30.00, false, 1),
-  ('nail',    'Gel Manicure',              'Long-lasting gel polish with UV finish',                         60,  45.00, true,  2),
-  ('nail',    'Acrylic Full Set',          'Full acrylic extension set with shape & design',                 90,  65.00, true,  3),
-  ('nail',    'Acrylic Infill',            'Infill for existing acrylic nails',                              60,  45.00, false, 4),
-  ('nail',    'Nail Art',                  'Custom nail art designs per nail',                               30,  20.00, false, 5),
-  ('nail',    'Classic Pedicure',          'Soak, exfoliate, shape & polish',                                60,  40.00, false, 6),
-  ('nail',    'Gel Pedicure',              'Pedicure with long-lasting gel polish',                          75,  55.00, true,  7),
-  ('nail',    'Luxury Mani + Pedi',        'Complete hands & feet treatment with scrub & mask',             120,  85.00, false, 8),
   ('massage', 'Swedish Relaxation',        'Gentle full-body massage to relieve tension & stress',           60,  70.00, true,  1),
   ('massage', 'Swedish — Extended',        'Extended full-body Swedish massage',                             90,  95.00, false, 2),
   ('massage', 'Deep Tissue',               'Targeted deep muscle work for chronic tension',                  60,  80.00, true,  3),
