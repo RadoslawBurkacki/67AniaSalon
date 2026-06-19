@@ -14,7 +14,7 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
       viewport={{ once: true, margin: '-50px' }}
       transition={{ duration: 0.5, delay: index * 0.06 }}
       whileHover={{ y: -4 }}
-      className="group relative bg-surface border border-border hover:border-gold/40 p-6 transition-all duration-400"
+      className="group relative flex flex-col h-full bg-surface border border-border hover:border-gold/40 p-6 transition-all duration-400"
     >
       {service.popular && (
         <div className="absolute top-3 right-3">
@@ -29,9 +29,9 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
         <span className="text-gold font-light text-lg shrink-0">£{service.price}</span>
       </div>
 
-      <p className="text-cream/50 text-sm leading-relaxed mb-4">{service.description}</p>
+      <p className="text-cream/50 text-sm leading-relaxed mb-4 flex-1">{service.description}</p>
 
-      <div className="flex items-center gap-1.5 text-cream/30 text-xs">
+      <div className="flex items-center gap-1.5 text-cream/30 text-xs mt-auto">
         <Clock size={11} />
         <span>{service.duration} min</span>
       </div>
@@ -142,7 +142,7 @@ export default function Services() {
                   </div>
                 ))
               : services.map((service, i) => (
-                  <div key={service.id} className="bg-background">
+                  <div key={service.id} className="bg-background h-full">
                     <ServiceCard service={service} index={i} />
                   </div>
                 ))
