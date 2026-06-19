@@ -599,7 +599,7 @@ export default function AdminPage() {
                                       onClick={() => setDiscountForm(f => ({ ...f, ends_at: val }))}
                                       className="text-xs border border-border text-cream/40 hover:text-gold hover:border-gold/40 px-2 py-2 transition-colors"
                                     >
-                                      {days}d
+                                      {days} day{days > 1 ? 's' : ''}
                                     </button>
                                   )
                                 })}
