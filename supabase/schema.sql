@@ -135,9 +135,11 @@ create table if not exists services (
   description text not null default '',
   duration    int  not null default 60,
   price       decimal(10,2) not null default 0,
-  popular     boolean not null default false,
-  sort_order  int not null default 0,
-  created_at  timestamptz default now()
+  popular          boolean not null default false,
+  sort_order       int not null default 0,
+  discount_price   decimal(10,2) default null,
+  discount_ends_at timestamptz default null,
+  created_at       timestamptz default now()
 );
 
 create index if not exists services_category_idx on services (category, sort_order);
@@ -193,3 +195,9 @@ where not exists (select 1 from services limit 1);
 -- 2. Click "Add User" and create an account with your admin email & password
 -- 3. That email/password is what you use to log in at /admin/login
 -- ============================================================
+
+-- ============================================================
+-- MIGRATIONS (run against existing DB if schema already applied)
+-- ============================================================
+alter table services add column if not exists discount_price   decimal(10,2) default null;
+alter table services add column if not exists discount_ends_at timestamptz   default null;

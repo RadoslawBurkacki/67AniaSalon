@@ -22,12 +22,25 @@ function ServiceCard({ service, index }: { service: Service; index: number }) {
         </div>
       )}
 
-      <div className="flex justify-between items-start mb-3">
-        <h3 className="font-serif text-lg text-cream group-hover:text-gold transition-colors duration-300 leading-snug pr-4">
-          {service.name}
-        </h3>
-        <span className="text-gold font-light text-lg shrink-0">£{service.price}</span>
-      </div>
+      {(() => {
+        const discountActive = !!service.discount_price &&
+          (!service.discount_ends_at || new Date(service.discount_ends_at) > new Date())
+        return (
+          <div className="flex justify-between items-start mb-3">
+            <h3 className="font-serif text-lg text-cream group-hover:text-gold transition-colors duration-300 leading-snug pr-4">
+              {service.name}
+            </h3>
+            {discountActive ? (
+              <div className="text-right shrink-0">
+                <span className="text-cream/30 text-xs line-through block">£{service.price}</span>
+                <span className="text-emerald-400 font-light text-lg">£{service.discount_price}</span>
+              </div>
+            ) : (
+              <span className="text-gold font-light text-lg shrink-0">£{service.price}</span>
+            )}
+          </div>
+        )
+      })()}
 
       <p className="text-cream/50 text-sm leading-relaxed mb-4 flex-1">{service.description}</p>
 

@@ -44,6 +44,24 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ service: data }, { status: 201 })
 }
 
+export async function PATCH(req: NextRequest) {
+  const token = requireAuth(req)
+  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { id, discount_price, discount_ends_at } = await req.json()
+  if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
+
+  const { data, error } = await authedClient(token)
+    .from('services')
+    .update({ discount_price: discount_price ?? null, discount_ends_at: discount_ends_at ?? null })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ service: data })
+}
+
 export async function DELETE(req: NextRequest) {
   const token = requireAuth(req)
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

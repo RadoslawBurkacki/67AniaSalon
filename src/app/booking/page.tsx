@@ -198,10 +198,20 @@ export default function BookingPage() {
                       <div className="flex items-center gap-3">
                         <span className="font-medium text-cream group-hover:text-gold transition-colors">{svc.name}</span>
                         {svc.popular && <span className="text-xs text-gold border border-gold/40 px-2 py-0.5">Popular</span>}
+                        {svc.discount_price && (!svc.discount_ends_at || new Date(svc.discount_ends_at) > new Date()) && (
+                          <span className="text-xs text-emerald-400 border border-emerald-400/40 px-2 py-0.5">Sale</span>
+                        )}
                       </div>
                       <p className="text-cream/40 text-sm mt-1">{svc.description} · {svc.duration} min</p>
                     </div>
-                    <span className="text-gold font-light text-lg ml-4 shrink-0">£{svc.price}</span>
+                    {svc.discount_price && (!svc.discount_ends_at || new Date(svc.discount_ends_at) > new Date()) ? (
+                      <div className="text-right ml-4 shrink-0">
+                        <span className="text-cream/30 text-xs line-through block">£{svc.price}</span>
+                        <span className="text-emerald-400 font-light text-lg">£{svc.discount_price}</span>
+                      </div>
+                    ) : (
+                      <span className="text-gold font-light text-lg ml-4 shrink-0">£{svc.price}</span>
+                    )}
                   </motion.button>
                 ))}
               </div>
@@ -341,7 +351,7 @@ export default function BookingPage() {
                     { label: 'Date', value: selectedDate ? format(selectedDate, 'EEEE, d MMMM yyyy') : '' },
                     { label: 'Time', value: selectedTime ? formatTime(selectedTime) : '' },
                     { label: 'Duration', value: `${service?.duration} minutes` },
-                    { label: 'Price', value: `£${service?.price}` },
+                    { label: 'Price', value: service && service.discount_price && (!service.discount_ends_at || new Date(service.discount_ends_at) > new Date()) ? `£${service.discount_price}` : `£${service?.price}` },
                   ].map(({ label, value }) => (
                     <div key={label} className="flex justify-between border-b border-border pb-3 last:border-0">
                       <span className="text-cream/40 text-sm">{label}</span>

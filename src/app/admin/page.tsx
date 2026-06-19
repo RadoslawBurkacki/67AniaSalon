@@ -50,6 +50,9 @@ export default function AdminPage() {
   const [loadingAdminServices, setLoadingAdminServices] = useState(false)
   const [serviceForm, setServiceForm] = useState({ name: '', description: '', duration: '60', price: '', popular: false })
   const [addingService, setAddingService] = useState(false)
+  const [discountServiceId, setDiscountServiceId] = useState<string | null>(null)
+  const [discountForm, setDiscountForm] = useState({ price: '', ends_at: '' })
+  const [savingDiscount, setSavingDiscount] = useState(false)
 
   const fetchBookings = useCallback(async () => {
     setLoading(true)
@@ -439,6 +442,45 @@ export default function AdminPage() {
             if (res.ok) setAdminServices(prev => prev.filter(s => s.id !== id))
           }
 
+          const saveDiscount = async (id: string) => {
+            if (!discountForm.price) return
+            setSavingDiscount(true)
+            const headers = await authHeaders()
+            const res = await fetch('/api/services', {
+              method: 'PATCH',
+              headers,
+              body: JSON.stringify({
+                id,
+                discount_price: parseFloat(discountForm.price),
+                discount_ends_at: discountForm.ends_at ? new Date(discountForm.ends_at).toISOString() : null,
+              }),
+            })
+            if (res.ok) {
+              const { service } = await res.json()
+              setAdminServices(prev => prev.map(s => s.id === id ? service : s))
+              setDiscountServiceId(null)
+            }
+            setSavingDiscount(false)
+          }
+
+          const endDiscount = async (id: string) => {
+            setSavingDiscount(true)
+            const headers = await authHeaders()
+            const res = await fetch('/api/services', {
+              method: 'PATCH',
+              headers,
+              body: JSON.stringify({ id, discount_price: null, discount_ends_at: null }),
+            })
+            if (res.ok) {
+              setAdminServices(prev => prev.map(s => s.id === id ? { ...s, discount_price: null, discount_ends_at: null } : s))
+              setDiscountServiceId(null)
+            }
+            setSavingDiscount(false)
+          }
+
+          const isDiscountActive = (svc: { discount_price?: number | null; discount_ends_at?: string | null }) =>
+            !!svc.discount_price && (!svc.discount_ends_at || new Date(svc.discount_ends_at) > new Date())
+
           return (
             <div className="max-w-2xl space-y-6">
               {/* Category tabs */}
@@ -469,26 +511,105 @@ export default function AdminPage() {
                   <div className="p-5 text-cream/40 text-sm">Loading…</div>
                 ) : adminServices.length === 0 ? (
                   <div className="p-5 text-cream/40 text-sm">No services yet.</div>
-                ) : adminServices.map(svc => (
-                  <div key={svc.id} className="flex items-start gap-4 px-5 py-4 group hover:bg-elevated transition-colors">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="font-medium text-cream text-sm">{svc.name}</span>
-                        {svc.popular && <span className="text-xs text-gold border border-gold/30 px-1.5 py-px">Popular</span>}
+                ) : adminServices.map(svc => {
+                  const active = isDiscountActive(svc)
+                  const discountOpen = discountServiceId === svc.id
+                  return (
+                    <div key={svc.id}>
+                      <div className="flex items-start gap-4 px-5 py-4 group hover:bg-elevated transition-colors">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <span className="font-medium text-cream text-sm">{svc.name}</span>
+                            {svc.popular && <span className="text-xs text-gold border border-gold/30 px-1.5 py-px">Popular</span>}
+                            {active && <span className="text-xs text-emerald-400 border border-emerald-400/30 px-1.5 py-px">Sale</span>}
+                          </div>
+                          <p className="text-cream/40 text-xs truncate">{svc.description}</p>
+                          <p className="text-cream/30 text-xs mt-1">{svc.duration} min</p>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          {active ? (
+                            <div className="text-right">
+                              <span className="text-cream/30 text-xs line-through block">£{Number(svc.price).toFixed(2)}</span>
+                              <span className="text-emerald-400 text-sm">£{Number(svc.discount_price).toFixed(2)}</span>
+                            </div>
+                          ) : (
+                            <span className="text-gold text-sm">£{Number(svc.price).toFixed(2)}</span>
+                          )}
+                          <button
+                            onClick={() => {
+                              if (discountOpen) { setDiscountServiceId(null); return }
+                              setDiscountServiceId(svc.id)
+                              setDiscountForm({
+                                price: svc.discount_price ? String(svc.discount_price) : '',
+                                ends_at: svc.discount_ends_at ? svc.discount_ends_at.slice(0, 10) : '',
+                              })
+                            }}
+                            className={`text-xs px-2 py-1 border transition-colors ${
+                              active
+                                ? 'border-emerald-400/40 text-emerald-400 hover:bg-emerald-400/10'
+                                : 'border-border text-cream/30 hover:text-gold hover:border-gold/40'
+                            }`}
+                            title="Set discount"
+                          >
+                            %
+                          </button>
+                          <button
+                            onClick={() => deleteService(svc.id)}
+                            className="text-cream/20 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
+                            title="Delete service"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       </div>
-                      <p className="text-cream/40 text-xs truncate">{svc.description}</p>
-                      <p className="text-cream/30 text-xs mt-1">{svc.duration} min</p>
+
+                      {discountOpen && (
+                        <div className="px-5 pb-5 bg-elevated border-t border-border">
+                          <p className="text-cream/40 text-xs mb-3 pt-4">Set a discounted price for this service</p>
+                          <div className="flex flex-wrap gap-3 items-end">
+                            <div>
+                              <label className="text-cream/40 text-xs block mb-1">Discounted price (£)</label>
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={discountForm.price}
+                                onChange={e => setDiscountForm(f => ({ ...f, price: e.target.value }))}
+                                placeholder="e.g. 35.00"
+                                className="bg-background border border-border text-cream px-3 py-2 text-sm w-36 focus:outline-none focus:border-gold/50"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-cream/40 text-xs block mb-1">End date (optional)</label>
+                              <input
+                                type="date"
+                                value={discountForm.ends_at}
+                                onChange={e => setDiscountForm(f => ({ ...f, ends_at: e.target.value }))}
+                                className="bg-background border border-border text-cream px-3 py-2 text-sm focus:outline-none focus:border-gold/50"
+                              />
+                            </div>
+                            <button
+                              onClick={() => saveDiscount(svc.id)}
+                              disabled={savingDiscount || !discountForm.price}
+                              className="btn-primary text-sm disabled:opacity-50"
+                            >
+                              {savingDiscount ? 'Saving…' : 'Apply'}
+                            </button>
+                            {active && (
+                              <button
+                                onClick={() => endDiscount(svc.id)}
+                                disabled={savingDiscount}
+                                className="text-sm text-red-400 hover:text-red-300 border border-red-400/30 px-3 py-2 transition-colors disabled:opacity-50"
+                              >
+                                End promotion
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <span className="text-gold text-sm shrink-0">£{Number(svc.price).toFixed(2)}</span>
-                    <button
-                      onClick={() => deleteService(svc.id)}
-                      className="text-cream/20 hover:text-red-400 transition-colors shrink-0 opacity-0 group-hover:opacity-100"
-                      title="Delete service"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
 
               {/* Add service form */}
