@@ -3,9 +3,11 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { Instagram, Facebook } from 'lucide-react'
+import { useSiteConfig } from '@/components/SiteConfigProvider'
 
 export default function Footer() {
   const year = new Date().getFullYear()
+  const cfg = useSiteConfig()
 
   return (
     <footer className="bg-background border-t border-border py-16">
@@ -22,12 +24,16 @@ export default function Footer() {
               Expert nail artistry and restorative massage. Your moment of calm awaits.
             </p>
             <div className="flex gap-4 mt-6">
-              <a href="#" aria-label="Instagram" className="w-9 h-9 border border-gold/20 hover:border-gold flex items-center justify-center text-gold/50 hover:text-gold transition-all duration-300">
-                <Instagram size={15} />
-              </a>
-              <a href="#" aria-label="Facebook" className="w-9 h-9 border border-gold/20 hover:border-gold flex items-center justify-center text-gold/50 hover:text-gold transition-all duration-300">
-                <Facebook size={15} />
-              </a>
+              {cfg.instagram && (
+                <a href={cfg.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-9 h-9 border border-gold/20 hover:border-gold flex items-center justify-center text-gold/50 hover:text-gold transition-all duration-300">
+                  <Instagram size={15} />
+                </a>
+              )}
+              {cfg.facebook && (
+                <a href={cfg.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-9 h-9 border border-gold/20 hover:border-gold flex items-center justify-center text-gold/50 hover:text-gold transition-all duration-300">
+                  <Facebook size={15} />
+                </a>
+              )}
             </div>
           </div>
 

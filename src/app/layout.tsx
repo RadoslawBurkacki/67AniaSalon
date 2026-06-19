@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import ThemeProvider from '@/components/ThemeProvider'
+import { SiteConfigProvider } from '@/components/SiteConfigProvider'
+import { getSiteConfig } from '@/lib/site-config'
 
 export const metadata: Metadata = {
   title: 'Anya\'s Salon — Nails & Massage',
@@ -18,7 +20,9 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const siteConfig = await getSiteConfig()
+
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
@@ -31,7 +35,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-background text-cream antialiased">
         <ThemeProvider>
-          {children}
+          <SiteConfigProvider initialConfig={siteConfig}>
+            {children}
+          </SiteConfigProvider>
         </ThemeProvider>
       </body>
     </html>

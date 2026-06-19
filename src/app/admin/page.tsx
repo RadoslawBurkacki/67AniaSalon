@@ -27,9 +27,16 @@ export default function AdminPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [adminNotifications, setAdminNotifications] = useState<boolean | null>(null)
   const [savingNotification, setSavingNotification] = useState(false)
-  const [emailConfig, setEmailConfig] = useState({ admin_email: '', from_email: '', salon_phone: '', salon_address: '' })
-  const [savingConfig, setSavingConfig] = useState(false)
-  const [configSaved, setConfigSaved] = useState(false)
+  const [emailConfig, setEmailConfig] = useState({ admin_email: '', from_email: '' })
+  const [savingEmailConfig, setSavingEmailConfig] = useState(false)
+  const [emailConfigSaved, setEmailConfigSaved] = useState(false)
+  const [siteInfo, setSiteInfo] = useState({
+    site_address: '', site_phone: '', site_email: '',
+    site_map_url: '', hours_mon_fri: '', hours_sat: '', hours_sun: '',
+    social_instagram: '', social_facebook: '',
+  })
+  const [savingSiteInfo, setSavingSiteInfo] = useState(false)
+  const [siteInfoSaved, setSiteInfoSaved] = useState(false)
 
   const fetchBookings = useCallback(async () => {
     setLoading(true)
@@ -43,13 +50,19 @@ export default function AdminPage() {
   useEffect(() => {
     fetch('/api/settings')
       .then(r => r.json())
-      .then(({ settings }) => {
-        setAdminNotifications(settings?.admin_booking_notifications !== 'false')
-        setEmailConfig({
-          admin_email: settings?.admin_email ?? '',
-          from_email: settings?.from_email ?? '',
-          salon_phone: settings?.salon_phone ?? '',
-          salon_address: settings?.salon_address ?? '',
+      .then(({ settings: s }) => {
+        setAdminNotifications(s?.admin_booking_notifications !== 'false')
+        setEmailConfig({ admin_email: s?.admin_email ?? '', from_email: s?.from_email ?? '' })
+        setSiteInfo({
+          site_address: s?.site_address ?? '',
+          site_phone: s?.site_phone ?? '',
+          site_email: s?.site_email ?? '',
+          site_map_url: s?.site_map_url ?? '',
+          hours_mon_fri: s?.hours_mon_fri ?? '',
+          hours_sat: s?.hours_sat ?? '',
+          hours_sun: s?.hours_sun ?? '',
+          social_instagram: s?.social_instagram ?? '',
+          social_facebook: s?.social_facebook ?? '',
         })
       })
       .catch(() => setAdminNotifications(true))
@@ -74,16 +87,20 @@ export default function AdminPage() {
     setSavingNotification(false)
   }
 
-  const saveEmailConfig = async () => {
-    setSavingConfig(true)
+  const saveSettings = async (
+    data: Record<string, string>,
+    setSaving: (v: boolean) => void,
+    setSaved: (v: boolean) => void,
+  ) => {
+    setSaving(true)
     await fetch('/api/settings', {
       method: 'PATCH',
       headers: await authHeaders(),
-      body: JSON.stringify({ settings: emailConfig }),
+      body: JSON.stringify({ settings: data }),
     })
-    setSavingConfig(false)
-    setConfigSaved(true)
-    setTimeout(() => setConfigSaved(false), 2000)
+    setSaving(false)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
   }
 
   const updateStatus = async (id: string, status: string) => {
@@ -256,62 +273,123 @@ export default function AdminPage() {
         {view === 'settings' && (
           <div className="max-w-lg space-y-6">
 
-            {/* Email addresses */}
+            {/* Site Info */}
             <div className="bg-surface border border-border p-6">
-              <h2 className="font-serif text-lg text-cream mb-1">Email Addresses</h2>
+              <h2 className="font-serif text-lg text-cream mb-1">Site Info</h2>
               <p className="text-cream/40 text-sm mb-6">
-                Leave blank to use the value from the server environment variable.
+                Shown on the website contact section and in client emails. Leave blank to use the built-in placeholder.
               </p>
-
               <div className="space-y-5">
+                <div>
+                  <label className="block text-xs text-cream/50 tracking-wider uppercase mb-1.5">Address</label>
+                  <textarea
+                    rows={2}
+                    value={siteInfo.site_address}
+                    onChange={e => setSiteInfo(p => ({ ...p, site_address: e.target.value }))}
+                    placeholder="123 Beauty Lane&#10;Your Town, AB12 3CD"
+                    className="w-full bg-background border border-border focus:border-gold outline-none px-4 py-2.5 text-cream text-sm placeholder:text-cream/20 transition-colors resize-none"
+                  />
+                </div>
                 {([
-                  { key: 'admin_email', label: 'Admin Email', placeholder: 'ADMIN_EMAIL env var', hint: 'Who receives new booking alerts' },
-                  { key: 'from_email', label: 'From Email', placeholder: 'FROM_EMAIL env var', hint: 'Sender address shown to clients' },
-                ] as const).map(({ key, label, placeholder, hint }) => (
+                  { key: 'site_phone' as const, label: 'Phone', type: 'tel', placeholder: '+44 7700 000000' },
+                  { key: 'site_email' as const, label: 'Contact Email', type: 'email', placeholder: 'hello@anyasalon.com' },
+                  { key: 'site_map_url' as const, label: 'Google Maps Embed URL', type: 'url', placeholder: 'https://www.google.com/maps/embed?pb=...' },
+                ]).map(({ key, label, type, placeholder }) => (
                   <div key={key}>
                     <label className="block text-xs text-cream/50 tracking-wider uppercase mb-1.5">{label}</label>
+                    <input
+                      type={type}
+                      value={siteInfo[key]}
+                      onChange={e => setSiteInfo(p => ({ ...p, [key]: e.target.value }))}
+                      placeholder={placeholder}
+                      className="w-full bg-background border border-border focus:border-gold outline-none px-4 py-2.5 text-cream text-sm placeholder:text-cream/20 transition-colors"
+                    />
+                  </div>
+                ))}
+
+                <div className="pt-2">
+                  <p className="text-xs text-cream/50 tracking-wider uppercase mb-3">Opening Hours</p>
+                  <div className="space-y-3">
+                    {([
+                      { key: 'hours_mon_fri' as const, label: 'Mon – Fri', placeholder: '9:00 AM – 6:00 PM' },
+                      { key: 'hours_sat' as const, label: 'Saturday', placeholder: '9:00 AM – 5:00 PM' },
+                      { key: 'hours_sun' as const, label: 'Sunday', placeholder: 'Closed' },
+                    ]).map(({ key, label, placeholder }) => (
+                      <div key={key} className="flex items-center gap-3">
+                        <span className="text-cream/40 text-xs w-20 shrink-0">{label}</span>
+                        <input
+                          type="text"
+                          value={siteInfo[key]}
+                          onChange={e => setSiteInfo(p => ({ ...p, [key]: e.target.value }))}
+                          placeholder={placeholder}
+                          className="flex-1 bg-background border border-border focus:border-gold outline-none px-3 py-2 text-cream text-sm placeholder:text-cream/20 transition-colors"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <p className="text-xs text-cream/50 tracking-wider uppercase mb-3">Social Media</p>
+                  <div className="space-y-3">
+                    {([
+                      { key: 'social_instagram' as const, label: 'Instagram URL' },
+                      { key: 'social_facebook' as const, label: 'Facebook URL' },
+                    ]).map(({ key, label }) => (
+                      <div key={key}>
+                        <label className="block text-xs text-cream/40 mb-1.5">{label}</label>
+                        <input
+                          type="url"
+                          value={siteInfo[key]}
+                          onChange={e => setSiteInfo(p => ({ ...p, [key]: e.target.value }))}
+                          placeholder="https://..."
+                          className="w-full bg-background border border-border focus:border-gold outline-none px-4 py-2.5 text-cream text-sm placeholder:text-cream/20 transition-colors"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => saveSettings(siteInfo, setSavingSiteInfo, setSiteInfoSaved)}
+                disabled={savingSiteInfo}
+                className="mt-6 btn-primary disabled:opacity-50"
+              >
+                {siteInfoSaved ? 'Saved' : savingSiteInfo ? 'Saving…' : 'Save Site Info'}
+              </button>
+            </div>
+
+            {/* Email addresses */}
+            <div className="bg-surface border border-border p-6">
+              <h2 className="font-serif text-lg text-cream mb-1">Email Config</h2>
+              <p className="text-cream/40 text-sm mb-6">
+                Leave blank to use the server environment variable fallback.
+              </p>
+              <div className="space-y-5">
+                {([
+                  { key: 'admin_email' as const, label: 'Admin Email', hint: 'Who receives new booking alerts' },
+                  { key: 'from_email' as const, label: 'From Email', hint: 'Sender address shown to clients' },
+                ] as const).map(({ key, label, hint }) => (
+                  <div key={key}>
+                    <label className="block text-xs text-cream/50 tracking-wider uppercase mb-1">{label}</label>
                     <p className="text-cream/30 text-xs mb-2">{hint}</p>
                     <input
                       type="email"
                       value={emailConfig[key]}
                       onChange={e => setEmailConfig(prev => ({ ...prev, [key]: e.target.value }))}
-                      placeholder={placeholder}
+                      placeholder="env var fallback"
                       className="w-full bg-background border border-border focus:border-gold outline-none px-4 py-2.5 text-cream text-sm placeholder:text-cream/20 transition-colors"
                     />
                   </div>
                 ))}
               </div>
-            </div>
-
-            {/* Salon info in email footers */}
-            <div className="bg-surface border border-border p-6">
-              <h2 className="font-serif text-lg text-cream mb-1">Salon Info</h2>
-              <p className="text-cream/40 text-sm mb-6">Shown in the footer of every email sent to clients.</p>
-
-              <div className="space-y-5">
-                {([
-                  { key: 'salon_phone', label: 'Phone', placeholder: 'SALON_PHONE env var' },
-                  { key: 'salon_address', label: 'Address', placeholder: 'SALON_ADDRESS env var' },
-                ] as const).map(({ key, label, placeholder }) => (
-                  <div key={key}>
-                    <label className="block text-xs text-cream/50 tracking-wider uppercase mb-1.5">{label}</label>
-                    <input
-                      type="text"
-                      value={emailConfig[key]}
-                      onChange={e => setEmailConfig(prev => ({ ...prev, [key]: e.target.value }))}
-                      placeholder={placeholder}
-                      className="w-full bg-background border border-border focus:border-gold outline-none px-4 py-2.5 text-cream text-sm placeholder:text-cream/20 transition-colors"
-                    />
-                  </div>
-                ))}
-              </div>
-
               <button
-                onClick={saveEmailConfig}
-                disabled={savingConfig}
+                onClick={() => saveSettings(emailConfig, setSavingEmailConfig, setEmailConfigSaved)}
+                disabled={savingEmailConfig}
                 className="mt-6 btn-primary disabled:opacity-50"
               >
-                {configSaved ? 'Saved' : savingConfig ? 'Saving…' : 'Save Changes'}
+                {emailConfigSaved ? 'Saved' : savingEmailConfig ? 'Saving…' : 'Save Email Config'}
               </button>
             </div>
 

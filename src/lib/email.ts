@@ -25,8 +25,8 @@ async function fetchEmailConfig(): Promise<EmailConfig> {
       from: s.from_email?.trim() || process.env.FROM_EMAIL || `${SALON_NAME} <onboarding@resend.dev>`,
       adminEmail: s.admin_email?.trim() || process.env.ADMIN_EMAIL || null,
       adminNotificationsEnabled: s.admin_booking_notifications !== 'false',
-      salonPhone: s.salon_phone?.trim() || process.env.SALON_PHONE || '',
-      salonAddress: s.salon_address?.trim() || process.env.SALON_ADDRESS || '',
+      salonPhone: s.site_phone?.trim() || process.env.SALON_PHONE || '',
+      salonAddress: s.site_address?.trim() || process.env.SALON_ADDRESS || '',
     }
   } catch {
     return {
@@ -35,6 +35,7 @@ async function fetchEmailConfig(): Promise<EmailConfig> {
       adminNotificationsEnabled: true,
       salonPhone: process.env.SALON_PHONE ?? '',
       salonAddress: process.env.SALON_ADDRESS ?? '',
+
     }
   }
 }
