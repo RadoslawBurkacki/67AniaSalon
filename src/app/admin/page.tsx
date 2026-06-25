@@ -216,13 +216,50 @@ export default function AdminPage() {
 
       {/* Top bar with nav */}
       <div className="border-b border-border">
-        <div className="section-container flex items-center gap-6 h-14">
-          <Link href="/" className="font-serif text-lg shrink-0">
-            <span className="gold-text">Anya</span>
-            <span className="text-cream/40 text-xs tracking-widest ml-1 font-sans">Admin</span>
-          </Link>
+        <div className="section-container">
+          {/* Header row */}
+          <div className="flex items-center h-14">
+            <Link href="/" className="font-serif text-lg shrink-0 mr-auto">
+              <span className="gold-text">Anya</span>
+              <span className="text-cream/40 text-xs tracking-widest ml-1 font-sans">Admin</span>
+            </Link>
 
-          <nav className="flex flex-1 overflow-x-auto">
+            {/* Desktop nav */}
+            <nav className="hidden md:flex flex-1 mx-4">
+              {([
+                { id: 'settings' as const, Icon: Settings, label: 'Settings' },
+                { id: 'calendar' as const, Icon: Calendar, label: 'Calendar' },
+                { id: 'list' as const, Icon: List, label: 'List' },
+                { id: 'schedule' as const, Icon: CalendarClock, label: 'Schedule' },
+                { id: 'services' as const, Icon: Scissors, label: 'Services' },
+              ] as const).map(({ id, Icon, label }) => (
+                <button
+                  key={id}
+                  onClick={() => setView(id)}
+                  className={`flex items-center gap-1.5 px-4 h-14 text-xs tracking-wide whitespace-nowrap border-b-2 transition-all duration-200 ${
+                    view === id
+                      ? 'border-gold text-gold'
+                      : 'border-transparent text-cream/40 hover:text-cream hover:border-cream/20'
+                  }`}
+                >
+                  <Icon size={13} /> {label}
+                </button>
+              ))}
+            </nav>
+
+            <div className="flex items-center gap-3 shrink-0">
+              <button onClick={fetchBookings} disabled={loading} className="text-cream/40 hover:text-gold transition-colors p-1" title="Refresh">
+                <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+              </button>
+              <button onClick={handleLogout} className="flex items-center gap-1.5 text-cream/40 hover:text-gold text-sm transition-colors p-1" title="Sign out">
+                <LogOut size={16} />
+                <span className="hidden md:inline">Sign out</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile nav — full-width tab bar */}
+          <nav className="flex md:hidden border-t border-border -mx-4">
             {([
               { id: 'settings' as const, Icon: Settings, label: 'Settings' },
               { id: 'calendar' as const, Icon: Calendar, label: 'Calendar' },
@@ -233,25 +270,17 @@ export default function AdminPage() {
               <button
                 key={id}
                 onClick={() => setView(id)}
-                className={`flex items-center gap-1.5 px-4 h-14 text-xs tracking-wide whitespace-nowrap border-b-2 transition-all duration-200 ${
+                className={`flex-1 flex flex-col items-center gap-1 py-3 border-b-2 transition-all duration-200 ${
                   view === id
                     ? 'border-gold text-gold'
-                    : 'border-transparent text-cream/40 hover:text-cream hover:border-cream/20'
+                    : 'border-transparent text-cream/40 active:text-cream'
                 }`}
               >
-                <Icon size={13} /> {label}
+                <Icon size={18} />
+                <span className="text-[10px] tracking-wide">{label}</span>
               </button>
             ))}
           </nav>
-
-          <div className="flex items-center gap-4 shrink-0">
-            <button onClick={fetchBookings} disabled={loading} className="text-cream/40 hover:text-gold transition-colors" title="Refresh">
-              <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-            </button>
-            <button onClick={handleLogout} className="flex items-center gap-2 text-cream/40 hover:text-gold text-sm transition-colors">
-              <LogOut size={15} /> Sign out
-            </button>
-          </div>
         </div>
       </div>
 
